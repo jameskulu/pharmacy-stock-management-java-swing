@@ -6,6 +6,8 @@
 package pharmacy;
 
 import com.sun.glass.events.KeyEvent;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,6 +36,7 @@ public class form extends javax.swing.JFrame {
      */
     public form() {
         initComponents();
+        seticon();
         show_user();
     }
    
@@ -49,8 +52,10 @@ public class form extends javax.swing.JFrame {
             user=new Sets(rs.getInt("medicine_id"),
                     rs.getString("medicine_name"),
                     rs.getString("company_name"),
-                    rs.getInt("quantity"),
-                    rs.getString("manufacture_date"),
+                    rs.getString("pack_size"),
+                    rs.getDouble("quantity"),
+                    rs.getDouble("unit_price"),
+                    rs.getDouble("total_amount"),
                     rs.getString("expiry_date")
             );
             userList.add(user);
@@ -64,14 +69,16 @@ public class form extends javax.swing.JFrame {
     public void show_user(){
         ArrayList<Sets> list = userList();
         DefaultTableModel model =(DefaultTableModel)jtable.getModel();
-        Object[] row = new Object[6];
+        Object[] row = new Object[8];
         for(int i=0; i<list.size();i++){
             row[0]=list.get(i).getId();
             row[1]=list.get(i).getmedicine_name();
             row[2]=list.get(i).getcompany_name();
-            row[3]=list.get(i).getquantity();
-            row[4]=list.get(i).getmanufacture_date();
-            row[5]=list.get(i).getexpiry_date();
+            row[3]=list.get(i).getpack_size();
+            row[4]=list.get(i).getquantity();
+            row[5]=list.get(i).getunnit_price();
+            row[6]=list.get(i).gettotal_amount();
+            row[7]=list.get(i).getexpiry_date();
             
             model.addRow(row);
         }
@@ -88,6 +95,7 @@ public class form extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        quantityTxt1 = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -97,20 +105,30 @@ public class form extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         companyTxt = new javax.swing.JTextField();
         btn = new javax.swing.JButton();
-        quantityTxt = new javax.swing.JTextField();
         medicineTxt = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtable = new javax.swing.JTable();
         btn1 = new javax.swing.JButton();
         btn2 = new javax.swing.JButton();
         expTxt = new javax.swing.JTextField();
-        manuTxt = new javax.swing.JTextField();
+        unitTxt = new javax.swing.JTextField();
         btn3 = new javax.swing.JButton();
         btn4 = new javax.swing.JButton();
+        quantityTxt = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        packTxt = new javax.swing.JTextField();
+
+        quantityTxt1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        quantityTxt1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                quantityTxt1KeyTyped(evt);
+            }
+        });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("G&K Pharmacy");
         setBackground(new java.awt.Color(255, 255, 255));
+        setIconImages(null);
         setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(63, 73, 195));
@@ -149,7 +167,7 @@ public class form extends javax.swing.JFrame {
         jLabel4.setText("Quantity");
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
-        jLabel5.setText("Manufacture Date");
+        jLabel5.setText("Unit Price");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
         jLabel6.setText("Expiry Date");
@@ -167,23 +185,16 @@ public class form extends javax.swing.JFrame {
             }
         });
 
-        quantityTxt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        quantityTxt.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                quantityTxtKeyTyped(evt);
-            }
-        });
-
         jtable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "S.N", "Medicine Name", "Company", "Quantity", "Manufacture Date", "Expiry Date"
+                "S.N", "Medicine Name", "Company", "Pack Size", "Quantity", "Unit Price", "Amount", "Expiry Date"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, true, false, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -199,7 +210,7 @@ public class form extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jtable);
         if (jtable.getColumnModel().getColumnCount() > 0) {
             jtable.getColumnModel().getColumn(0).setMaxWidth(30);
-            jtable.getColumnModel().getColumn(3).setMaxWidth(60);
+            jtable.getColumnModel().getColumn(4).setMaxWidth(60);
         }
 
         btn1.setBackground(new java.awt.Color(204, 0, 255));
@@ -226,7 +237,20 @@ public class form extends javax.swing.JFrame {
 
         expTxt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        manuTxt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        unitTxt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        unitTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unitTxtActionPerformed(evt);
+            }
+        });
+        unitTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                unitTxtKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                unitTxtKeyTyped(evt);
+            }
+        });
 
         btn3.setBackground(new java.awt.Color(255, 51, 0));
         btn3.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
@@ -239,14 +263,36 @@ public class form extends javax.swing.JFrame {
             }
         });
 
-        btn4.setBackground(new java.awt.Color(0, 255, 255));
+        btn4.setBackground(new java.awt.Color(153, 153, 153));
         btn4.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
         btn4.setForeground(new java.awt.Color(255, 255, 255));
-        btn4.setText("Import CSV");
+        btn4.setText("Clear All");
         btn4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btn4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn4ActionPerformed(evt);
+            }
+        });
+
+        quantityTxt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        quantityTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quantityTxtActionPerformed(evt);
+            }
+        });
+        quantityTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                quantityTxtKeyTyped(evt);
+            }
+        });
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
+        jLabel7.setText("Pack Size");
+
+        packTxt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        packTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                packTxtKeyTyped(evt);
             }
         });
 
@@ -260,26 +306,43 @@ public class form extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2)
-                            .addComponent(medicineTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .addComponent(btn4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(36, 36, 36)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel3)
-                            .addComponent(companyTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .addComponent(btn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(36, 36, 36)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(28, 28, 28)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel7)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(packTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel4)))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(60, 60, 60)
+                                .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(48, 48, 48)
+                                .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(quantityTxt, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(manuTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(30, 30, 30)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(unitTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(30, 30, 30))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(48, 48, 48)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(expTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel6)
@@ -302,16 +365,20 @@ public class form extends javax.swing.JFrame {
                             .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(1, 1, 1))
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(jLabel3)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel7))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(packTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addComponent(jLabel4)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(manuTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(unitTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -333,26 +400,15 @@ public class form extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionPerformed
-       if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || quantityTxt.getText().equals("") || manuTxt.getText().equals("") || expTxt.getText().equals("")){
+       if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || packTxt.getText().equals("") || quantityTxt.getText().equals("") || unitTxt.getText().equals("") || expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please enter all data!");
        }
        else{
-//           String data[] = {"1",medicineTxt.getText(),companyTxt.getText(),quantityTxt.getText(),ManuTxt.getText(),expTxt.getText()};
-//           
-//           DefaultTableModel tblModel = (DefaultTableModel)jTable1.getModel(); 
-//           tblModel.addRow(data);
-//           JOptionPane.showMessageDialog(this, "Data added successfully!");
-//           
-//           medicineTxt.setText("");
-//           companyTxt.setText("");
-//           quantityTxt.setText("");
-//           ManuTxt.setText("");
-//           expTxt.setText("");
-           
            try {
                 Database db=new Database();
-//                int result=db.save(medicineTxt.getText(), companyTxt.getText(),quantityTxt.getText(),ManuTxt.getText(), expTxt.getText());
-                int result = db.save(medicineTxt.getText(), companyTxt.getText(),Integer.parseInt(quantityTxt.getText()),manuTxt.getText(),expTxt.getText());
+                double total_amount;
+                total_amount =  Double.parseDouble(quantityTxt.getText()) *  Double.parseDouble(unitTxt.getText());
+                int result = db.save(medicineTxt.getText(), companyTxt.getText(),packTxt.getText(),Double.parseDouble(quantityTxt.getText()),Double.parseDouble(unitTxt.getText()),total_amount,expTxt.getText());
                 if(result>0)
                 {
                     
@@ -364,8 +420,9 @@ public class form extends javax.swing.JFrame {
                      
                      medicineTxt.setText("");
                      companyTxt.setText("");
+                     packTxt.setText("");
                      quantityTxt.setText("");
-                     manuTxt.setText("");
+                     unitTxt.setText("");
                      expTxt.setText("");
                       
                 }
@@ -382,7 +439,7 @@ public class form extends javax.swing.JFrame {
 
     private void quantityTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantityTxtKeyTyped
        char c = evt.getKeyChar();
-       if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE)){
+       if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD)){
            evt.consume();
        }
     }//GEN-LAST:event_quantityTxtKeyTyped
@@ -390,7 +447,7 @@ public class form extends javax.swing.JFrame {
     private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "csv", "jpg", "gif");
+                "csv","gif");
         fileChooser.setFileFilter(filter);
         fileChooser.setDialogTitle("Specify a file save");
         int userSelection = fileChooser.showSaveDialog(this);
@@ -400,6 +457,11 @@ public class form extends javax.swing.JFrame {
          
             try {
                   FileWriter fw = new FileWriter(fileToSave);
+                  
+                  for (int i = 0; i < jtable.getColumnCount(); i++) {
+            fw.write(jtable.getColumnName(i) + ",");
+        }
+                   fw.write("\n");
                 BufferedWriter bw = new BufferedWriter(fw);
                 for(int i = 0; i < jtable.getRowCount();i++) {
                     for(int j = 0; j < jtable.getColumnCount(); j++) {
@@ -408,7 +470,7 @@ public class form extends javax.swing.JFrame {
                     }
                     bw.newLine();//record per line 
                 }
-                JOptionPane.showMessageDialog(this, "Successfully loaded!","INFORMATION",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Successfully exported!","INFORMATION",JOptionPane.INFORMATION_MESSAGE);
                 bw.close();
                 fw.close();
             } catch (IOException ex) {
@@ -421,7 +483,7 @@ public class form extends javax.swing.JFrame {
     private void btn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn2ActionPerformed
         
         
-      if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || quantityTxt.getText().equals("") || manuTxt.getText().equals("") || expTxt.getText().equals("")){
+      if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || packTxt.getText().equals("") || quantityTxt.getText().equals("") || unitTxt.getText().equals("") || expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please enter all data!");
        }
        else{
@@ -429,8 +491,8 @@ public class form extends javax.swing.JFrame {
                 int row = jtable.getSelectedRow();
                 String value = (jtable.getModel().getValueAt(row, 0).toString()); 
                 Database db = new Database();
-                int result = db.update_medicine(medicineTxt.getText(), companyTxt.getText(),Integer.parseInt(quantityTxt.getText()),manuTxt.getText(),expTxt.getText(),value);
-                System.out.println("result"+result);
+                double total_amount =  Double.parseDouble(quantityTxt.getText()) *  Double.parseDouble(unitTxt.getText());
+                int result = db.update_medicine(medicineTxt.getText(), companyTxt.getText(),packTxt.getText(),Double.parseDouble(quantityTxt.getText()),Double.parseDouble(unitTxt.getText()),total_amount,expTxt.getText(),value);
                 if(result>0)
                 {
                     DefaultTableModel model = (DefaultTableModel)jtable.getModel();
@@ -440,8 +502,9 @@ public class form extends javax.swing.JFrame {
                      
                      medicineTxt.setText("");
                      companyTxt.setText("");
+                     packTxt.setText("");
                      quantityTxt.setText("");
-                     manuTxt.setText("");
+                     unitTxt.setText("");
                      expTxt.setText("");
                  }
                 else
@@ -463,14 +526,15 @@ public class form extends javax.swing.JFrame {
         TableModel model = jtable.getModel();
         medicineTxt.setText(model.getValueAt(i, 1).toString());
          companyTxt.setText(model.getValueAt(i, 2).toString());
-          quantityTxt.setText(model.getValueAt(i, 3).toString());
-         manuTxt.setText(model.getValueAt(i, 4).toString());
-         expTxt.setText(model.getValueAt(i, 5).toString());
+          packTxt.setText(model.getValueAt(i, 3).toString());
+          quantityTxt.setText(model.getValueAt(i, 4).toString());
+          unitTxt.setText(model.getValueAt(i, 5).toString());
+         expTxt.setText(model.getValueAt(i, 7).toString());
   
     }//GEN-LAST:event_jtableMouseClicked
 
     private void btn3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn3ActionPerformed
-          if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && quantityTxt.getText().equals("") && manuTxt.getText().equals("") && expTxt.getText().equals("")){
+          if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && packTxt.getText().equals("") && quantityTxt.getText().equals("") && unitTxt.getText().equals("") && expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please select data to delete!");
             }
         else{
@@ -491,8 +555,9 @@ public class form extends javax.swing.JFrame {
 
                        medicineTxt.setText("");
                        companyTxt.setText("");
+                       packTxt.setText("");
                        quantityTxt.setText("");
-                       manuTxt.setText("");
+                       unitTxt.setText("");
                        expTxt.setText("");
                    }
                   else
@@ -504,8 +569,40 @@ public class form extends javax.swing.JFrame {
     }//GEN-LAST:event_btn3ActionPerformed
 
     private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
-        
+        medicineTxt.setText("");
+        companyTxt.setText("");
+          packTxt.setText("");
+        quantityTxt.setText("");
+        unitTxt.setText("");
+        expTxt.setText("");
     }//GEN-LAST:event_btn4ActionPerformed
+
+    private void unitTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unitTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_unitTxtActionPerformed
+
+    private void quantityTxt1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantityTxt1KeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_quantityTxt1KeyTyped
+
+    private void packTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_packTxtKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_packTxtKeyTyped
+
+    private void quantityTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantityTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_quantityTxtActionPerformed
+
+    private void unitTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_unitTxtKeyTyped
+      char c = evt.getKeyChar();
+       if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD)){
+           evt.consume();
+       }
+    }//GEN-LAST:event_unitTxtKeyTyped
+
+    private void unitTxtKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_unitTxtKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_unitTxtKeyPressed
 
     
     
@@ -543,6 +640,11 @@ public class form extends javax.swing.JFrame {
         });
         
     }
+    
+    private void seticon(){
+       Image icon = Toolkit.getDefaultToolkit().getImage("img/gnk.png");  
+        setIconImage(icon);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn;
@@ -558,12 +660,15 @@ public class form extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jtable;
-    private javax.swing.JTextField manuTxt;
     private javax.swing.JTextField medicineTxt;
+    private javax.swing.JTextField packTxt;
     private javax.swing.JTextField quantityTxt;
+    private javax.swing.JTextField quantityTxt1;
+    private javax.swing.JTextField unitTxt;
     // End of variables declaration//GEN-END:variables
 
     
