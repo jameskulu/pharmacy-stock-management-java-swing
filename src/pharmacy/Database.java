@@ -8,6 +8,10 @@ public class Database {
     public Connection conn=null;
     PreparedStatement pstmt=null;
      ResultSet rs=null;
+     
+     
+     
+     
     
     public Database()
     {
@@ -21,8 +25,22 @@ public class Database {
         }
     }
     
+    
+    public static Connection koneksiDb(){
+    try
+    {
+        Class.forName("com.mysql.jdbc.Driver");
+        Connection filekoneksi = DriverManager.getConnection("jdbc:mysql://localhost/Pharmacy","root","");
+        System.out.println("Connection Success");
+        return filekoneksi;
+    }
+    catch (Exception e){
+        System.out.println("Connection error");
+        return null;
+    }
+}
+    
     public int save( String medicine_name,String company_name,String pack_size,double quantity,double unit_price,double total_amount, String expiry_date)
- 
     {
         int result=0;
         try {
@@ -40,9 +58,7 @@ public class Database {
         catch (Exception e) {
             System.out.println("Error: "+e);
         }
-           
             return result;
-        
     }
     
     

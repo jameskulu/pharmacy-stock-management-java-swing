@@ -6,6 +6,7 @@
 package pharmacy;
 
 import com.sun.glass.events.KeyEvent;
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.BufferedInputStream;
@@ -15,15 +16,18 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.RowFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -117,6 +121,7 @@ public class form extends javax.swing.JFrame {
         quantityTxt = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         packTxt = new javax.swing.JTextField();
+        searchTxt = new javax.swing.JTextField();
 
         quantityTxt1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         quantityTxt1.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -145,16 +150,16 @@ public class form extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(39, 39, 39)
+                .addGap(37, 37, 37)
                 .addComponent(jLabel1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(33, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(19, 19, 19)
                 .addComponent(jLabel1)
-                .addGap(32, 32, 32))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
@@ -182,6 +187,20 @@ public class form extends javax.swing.JFrame {
         btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnActionPerformed(evt);
+            }
+        });
+
+        medicineTxt.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                medicineTxtFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                medicineTxtFocusLost(evt);
+            }
+        });
+        medicineTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                medicineTxtKeyReleased(evt);
             }
         });
 
@@ -296,12 +315,36 @@ public class form extends javax.swing.JFrame {
             }
         });
 
+        searchTxt.setForeground(new java.awt.Color(153, 153, 153));
+        searchTxt.setText("Search..");
+        searchTxt.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                searchTxtFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                searchTxtFocusLost(evt);
+            }
+        });
+        searchTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchTxtActionPerformed(evt);
+            }
+        });
+        searchTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchTxtKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                searchTxtKeyTyped(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGap(37, 37, 37)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1)
@@ -326,7 +369,7 @@ public class form extends javax.swing.JFrame {
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(jLabel4)))))
-                            .addGroup(layout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(60, 60, 60)
                                 .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -346,14 +389,15 @@ public class form extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(expTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel6)
-                            .addComponent(btn, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btn, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(45, 45, 45))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel5)
@@ -362,8 +406,7 @@ public class form extends javax.swing.JFrame {
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(jLabel2)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(1, 1, 1))
+                            .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jLabel3)
@@ -391,9 +434,11 @@ public class form extends javax.swing.JFrame {
                     .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(38, 38, 38)
+                .addGap(21, 21, 21)
+                .addComponent(searchTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         pack();
@@ -534,21 +579,61 @@ public class form extends javax.swing.JFrame {
     }//GEN-LAST:event_jtableMouseClicked
 
     private void btn3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn3ActionPerformed
-          if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && packTxt.getText().equals("") && quantityTxt.getText().equals("") && unitTxt.getText().equals("") && expTxt.getText().equals("")){
+//          if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && packTxt.getText().equals("") && quantityTxt.getText().equals("") && unitTxt.getText().equals("") && expTxt.getText().equals("")){
+//           JOptionPane.showMessageDialog(this, "Please select data to delete!");
+//            }
+//        else{
+//        int a = JOptionPane.showConfirmDialog(null,"Do you sure want to delete this ?","Delete",JOptionPane.YES_NO_OPTION);
+//        if(a==0){ 
+//              Database db = new Database();
+//              int row = jtable.getSelectedRow();
+//              String value = (jtable.getModel().getValueAt(row, 0).toString());
+//              int result = db.delete(value);
+//              if(result>0)
+//                  {
+//                      DefaultTableModel model = (DefaultTableModel)jtable.getModel();
+//                      model.setRowCount(0);
+//                      show_user();
+//                      JOptionPane.showMessageDialog(null,"Deleted");
+//
+//                       medicineTxt.setText("");
+//                       companyTxt.setText("");
+//                       packTxt.setText("");
+//                       quantityTxt.setText("");
+//                       unitTxt.setText("");
+//                       expTxt.setText("");
+//                   }
+//                  else
+//                  {
+//                      JOptionPane.showMessageDialog(null,"Unable to delete");
+//                  }
+//            }
+//         }
+        
+                  if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && packTxt.getText().equals("") && quantityTxt.getText().equals("") && unitTxt.getText().equals("") && expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please select data to delete!");
             }
+                  
         else{
-        int a = JOptionPane.showConfirmDialog(null,"Do you sure want to delete this ?","Delete",JOptionPane.YES_NO_OPTION);
-        if(a==0){
-            
-            
-              Database db = new Database();
-              int row = jtable.getSelectedRow();
-              String value = (jtable.getModel().getValueAt(row, 0).toString());
-              int result = db.delete(value);
-              if(result>0)
-                  {
-                      DefaultTableModel model = (DefaultTableModel)jtable.getModel();
+          int a = JOptionPane.showConfirmDialog(null,"Do you sure want to delete this ?","Delete",JOptionPane.YES_NO_OPTION);
+        if(a==0){ 
+        int row = jtable.getSelectedRow();
+       if(row!=-1)
+       {
+           String NOMER = jtable.getValueAt(row, 0).toString();
+           System.out.println(NOMER);
+           String sql = "DELETE FROM Medicine WHERE medicine_id='"+NOMER+"'";
+           
+           String resetno = "ALTER TABLE Medicine DROP medicine_id";
+           String consecutivenumbers="ALTER TABLE Medicine ADD medicine_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST";
+           
+           try {
+               Database.koneksiDb().createStatement().execute(sql);
+               Database.koneksiDb().createStatement().execute(resetno);
+               Database.koneksiDb().createStatement().execute(consecutivenumbers);
+               
+    
+                DefaultTableModel model = (DefaultTableModel)jtable.getModel();
                       model.setRowCount(0);
                       show_user();
                       JOptionPane.showMessageDialog(null,"Deleted");
@@ -559,13 +644,19 @@ public class form extends javax.swing.JFrame {
                        quantityTxt.setText("");
                        unitTxt.setText("");
                        expTxt.setText("");
-                   }
-                  else
-                  {
-                      JOptionPane.showMessageDialog(null,"Unable to delete");
-                  }
-            }
-         }
+           } catch (SQLException ex) {
+               JOptionPane.showMessageDialog(null, "Unable to delete");
+           }
+           
+       }
+        }
+    }
+        
+        
+        
+        
+        
+        
     }//GEN-LAST:event_btn3ActionPerformed
 
     private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
@@ -603,6 +694,48 @@ public class form extends javax.swing.JFrame {
     private void unitTxtKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_unitTxtKeyPressed
         // TODO add your handling code here:
     }//GEN-LAST:event_unitTxtKeyPressed
+
+    private void medicineTxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_medicineTxtKeyReleased
+      
+    }//GEN-LAST:event_medicineTxtKeyReleased
+
+    private void medicineTxtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_medicineTxtFocusGained
+       
+    }//GEN-LAST:event_medicineTxtFocusGained
+
+    private void medicineTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_medicineTxtFocusLost
+       
+    }//GEN-LAST:event_medicineTxtFocusLost
+
+    private void searchTxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchTxtKeyReleased
+        DefaultTableModel table = (DefaultTableModel)jtable.getModel();
+       String search = searchTxt.getText();
+        TableRowSorter<DefaultTableModel> tr = new TableRowSorter<DefaultTableModel>(table);
+        jtable.setRowSorter(tr);
+        tr.setRowFilter(RowFilter.regexFilter(search));
+    }//GEN-LAST:event_searchTxtKeyReleased
+
+    private void searchTxtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_searchTxtFocusGained
+        if (searchTxt.getText().equals("Search..")){
+            searchTxt.setText("");
+            searchTxt.setForeground(new Color(153,153,153));
+        }
+    }//GEN-LAST:event_searchTxtFocusGained
+
+    private void searchTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_searchTxtFocusLost
+        if (searchTxt.getText().equals("")){
+            searchTxt.setText("Search..");
+            searchTxt.setForeground(new Color(153,153,153));
+        }
+    }//GEN-LAST:event_searchTxtFocusLost
+
+    private void searchTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_searchTxtActionPerformed
+
+    private void searchTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchTxtKeyTyped
+       searchTxt.setForeground(new Color(0,0,0));
+    }//GEN-LAST:event_searchTxtKeyTyped
 
     
     
@@ -668,6 +801,7 @@ public class form extends javax.swing.JFrame {
     private javax.swing.JTextField packTxt;
     private javax.swing.JTextField quantityTxt;
     private javax.swing.JTextField quantityTxt1;
+    private javax.swing.JTextField searchTxt;
     private javax.swing.JTextField unitTxt;
     // End of variables declaration//GEN-END:variables
 
