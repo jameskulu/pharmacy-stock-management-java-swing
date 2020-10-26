@@ -712,7 +712,7 @@ public class form extends javax.swing.JFrame {
        String search = searchTxt.getText();
         TableRowSorter<DefaultTableModel> tr = new TableRowSorter<DefaultTableModel>(table);
         jtable.setRowSorter(tr);
-        tr.setRowFilter(RowFilter.regexFilter(search));
+        tr.setRowFilter(RowFilter.regexFilter("(?i)" +search));
     }//GEN-LAST:event_searchTxtKeyReleased
 
     private void searchTxtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_searchTxtFocusGained
