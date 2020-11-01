@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.RowFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -41,9 +42,13 @@ public class form extends javax.swing.JFrame {
     public form() {
         initComponents();
         seticon();
+                 
         show_user();
+        total_amount_func();
+
     }
-   
+    
+    
    public ArrayList<Sets> userList(){
         ArrayList<Sets> userList = new ArrayList<>();
         try{
@@ -57,8 +62,11 @@ public class form extends javax.swing.JFrame {
                     rs.getString("medicine_name"),
                     rs.getString("company_name"),
                     rs.getString("pack_size"),
+                    rs.getDouble("tablet_in_leaflet"),
                     rs.getDouble("quantity"),
                     rs.getDouble("unit_price"),
+                    rs.getDouble("quantity2"),
+                    rs.getDouble("unit_price2"),
                     rs.getDouble("total_amount"),
                     rs.getString("expiry_date")
             );
@@ -69,20 +77,38 @@ public class form extends javax.swing.JFrame {
         }
         return userList;
     }
+   
+   
+   public void total_amount_func(){
+        int numrow = jtable.getRowCount();
+        
+        double tot = 0;
+        
+        for (int i = 0; i < numrow; i++) {
+            double val = Double.valueOf(jtable.getValueAt(i, 9).toString());
+            tot += val ;
+            
+            
+        }
+        totalAmountLabel.setText("Total Amount : Rs."+Double.toString(tot));
+   }
     
     public void show_user(){
         ArrayList<Sets> list = userList();
         DefaultTableModel model =(DefaultTableModel)jtable.getModel();
-        Object[] row = new Object[8];
+        Object[] row = new Object[11];
         for(int i=0; i<list.size();i++){
             row[0]=list.get(i).getId();
             row[1]=list.get(i).getmedicine_name();
             row[2]=list.get(i).getcompany_name();
             row[3]=list.get(i).getpack_size();
-            row[4]=list.get(i).getquantity();
-            row[5]=list.get(i).getunnit_price();
-            row[6]=list.get(i).gettotal_amount();
-            row[7]=list.get(i).getexpiry_date();
+            row[4]=list.get(i).gettablet_in_leaflet();
+            row[5]=list.get(i).getquantity();
+            row[6]=list.get(i).getunnit_price();
+            row[7]=list.get(i).getquantity2();
+            row[8]=list.get(i).getunnit_price2();
+            row[9]=list.get(i).gettotal_amount();
+            row[10]=list.get(i).getexpiry_date();
             
             model.addRow(row);
         }
@@ -122,6 +148,13 @@ public class form extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         packTxt = new javax.swing.JTextField();
         searchTxt = new javax.swing.JTextField();
+        unit2Txt = new javax.swing.JTextField();
+        quantity2Txt = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        defaultquantityTxt = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        totalAmountLabel = new javax.swing.JLabel();
 
         quantityTxt1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         quantityTxt1.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -169,10 +202,10 @@ public class form extends javax.swing.JFrame {
         jLabel3.setText("Company");
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
-        jLabel4.setText("Quantity");
+        jLabel4.setText("Leaflet Quantity");
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
-        jLabel5.setText("Unit Price");
+        jLabel5.setText("Leaflet Unit Price");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
         jLabel6.setText("Expiry Date");
@@ -209,11 +242,11 @@ public class form extends javax.swing.JFrame {
 
             },
             new String [] {
-                "S.N", "Medicine Name", "Company", "Pack Size", "Quantity", "Unit Price", "Amount", "Expiry Date"
+                "S.N", "Medicine Name", "Company", "Pack Size", "Tablet in a leaflet", "Leaflet Quantity", "Leaflet Unit Price", "Tablet Quantity", "Tablet Unit Price", "Amount", "Expiry Date"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, true, false, true, true, false
+                false, false, false, true, true, false, true, true, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -229,7 +262,8 @@ public class form extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jtable);
         if (jtable.getColumnModel().getColumnCount() > 0) {
             jtable.getColumnModel().getColumn(0).setMaxWidth(30);
-            jtable.getColumnModel().getColumn(4).setMaxWidth(60);
+            jtable.getColumnModel().getColumn(3).setMaxWidth(100);
+            jtable.getColumnModel().getColumn(10).setMaxWidth(300);
         }
 
         btn1.setBackground(new java.awt.Color(204, 0, 255));
@@ -266,6 +300,9 @@ public class form extends javax.swing.JFrame {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 unitTxtKeyPressed(evt);
             }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                unitTxtKeyReleased(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 unitTxtKeyTyped(evt);
             }
@@ -300,6 +337,12 @@ public class form extends javax.swing.JFrame {
             }
         });
         quantityTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                quantityTxtKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                quantityTxtKeyReleased(evt);
+            }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 quantityTxtKeyTyped(evt);
             }
@@ -339,59 +382,112 @@ public class form extends javax.swing.JFrame {
             }
         });
 
+        unit2Txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                unit2TxtKeyTyped(evt);
+            }
+        });
+
+        quantity2Txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quantity2TxtActionPerformed(evt);
+            }
+        });
+        quantity2Txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                quantity2TxtKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                quantity2TxtKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                quantity2TxtKeyTyped(evt);
+            }
+        });
+
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
+        jLabel8.setText("Tablet Quantity");
+
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
+        jLabel9.setText("Tablet Unit Price");
+
+        defaultquantityTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                defaultquantityTxtKeyTyped(evt);
+            }
+        });
+
+        jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
+        jLabel10.setText("No of tablet in a leaflet");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(37, 37, 37)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(totalAmountLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(37, 37, 37)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel2)
-                                    .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(36, 36, 36)
+                                    .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
-                                    .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(28, 28, 28)
+                                    .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(packTxt))
+                                .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel7)
-                                        .addGap(0, 0, Short.MAX_VALUE))
+                                        .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGap(32, 32, 32))
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(packTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jLabel4)))))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(60, 60, 60)
-                                .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(48, 48, 48)
-                                .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(defaultquantityTxt)
+                                        .addGap(18, 18, 18)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(unitTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel8)
+                                        .addGap(21, 21, 21))
+                                    .addComponent(quantity2Txt, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel9)
+                                    .addComponent(unit2Txt, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(expTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(29, 29, 29)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(unitTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(30, 30, 30))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(48, 48, 48)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(expTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)
-                            .addComponent(btn, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(searchTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(45, 45, 45))
+                                .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(50, 50, 50)
+                                .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(52, 52, 52)
+                                .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(49, 49, 49)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(searchTxt, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))))))
+                .addGap(43, 43, 43))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -399,61 +495,85 @@ public class form extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(36, 36, 36))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel2)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel7))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(packTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(jLabel4)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(unitTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6)
+                                .addGap(0, 1, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel9))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(expTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(1, 1, 1)))
-                .addGap(27, 27, 27)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
-                .addComponent(searchTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(35, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(expTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(unit2Txt, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(31, 31, 31))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(packTxt)
+                                .addGap(30, 30, 30))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(defaultquantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(17, 17, 17)
+                        .addComponent(searchTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(jLabel8))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel3)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(companyTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(quantityTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(unitTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addComponent(jLabel2)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(medicineTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addComponent(quantity2Txt, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(1, 1, 1))))
+                        .addGap(134, 134, 134)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 2, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(totalAmountLabel)
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionPerformed
-       if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || packTxt.getText().equals("") || quantityTxt.getText().equals("") || unitTxt.getText().equals("") || expTxt.getText().equals("")){
+       if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || packTxt.getText().equals("") || defaultquantityTxt.getText().equals("") || quantityTxt.getText().equals("") || unitTxt.getText().equals("") || quantity2Txt.getText().equals("") || unit2Txt.getText().equals("") || expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please enter all data!");
        }
        else{
            try {
                 Database db=new Database();
-                double total_amount;
-                total_amount =  Double.parseDouble(quantityTxt.getText()) *  Double.parseDouble(unitTxt.getText());
-                int result = db.save(medicineTxt.getText(), companyTxt.getText(),packTxt.getText(),Double.parseDouble(quantityTxt.getText()),Double.parseDouble(unitTxt.getText()),total_amount,expTxt.getText());
+                double total_amount = Double.parseDouble(quantity2Txt.getText()) * Double.parseDouble(unit2Txt.getText());
+                double roundOff = (double) Math.round(total_amount * 100) / 100;
+                int result = db.save(medicineTxt.getText(), companyTxt.getText(),packTxt.getText(),Double.parseDouble(defaultquantityTxt.getText()),Double.parseDouble(quantityTxt.getText()),Double.parseDouble(unitTxt.getText()),Double.parseDouble(quantity2Txt.getText()),Double.parseDouble(unit2Txt.getText()),roundOff,expTxt.getText());
                 if(result>0)
                 {
                     
@@ -466,8 +586,11 @@ public class form extends javax.swing.JFrame {
                      medicineTxt.setText("");
                      companyTxt.setText("");
                      packTxt.setText("");
+                     defaultquantityTxt.setText("");
                      quantityTxt.setText("");
                      unitTxt.setText("");
+                     quantity2Txt.setText("");                 
+                     unit2Txt.setText("");
                      expTxt.setText("");
                       
                 }
@@ -479,15 +602,14 @@ public class form extends javax.swing.JFrame {
             }
            
        }
+       
+        total_amount_func();
+       
+       
+       
+        
       
     }//GEN-LAST:event_btnActionPerformed
-
-    private void quantityTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantityTxtKeyTyped
-       char c = evt.getKeyChar();
-       if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD)){
-           evt.consume();
-       }
-    }//GEN-LAST:event_quantityTxtKeyTyped
 
     private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
         JFileChooser fileChooser = new JFileChooser();
@@ -528,7 +650,7 @@ public class form extends javax.swing.JFrame {
     private void btn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn2ActionPerformed
         
         
-      if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || packTxt.getText().equals("") || quantityTxt.getText().equals("") || unitTxt.getText().equals("") || expTxt.getText().equals("")){
+      if (medicineTxt.getText().equals("") || companyTxt.getText().equals("") || packTxt.getText().equals("") || defaultquantityTxt.getText().equals("") || quantityTxt.getText().equals("") || unitTxt.getText().equals("") || quantity2Txt.getText().equals("") || unit2Txt.getText().equals("") || expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please enter all data!");
        }
        else{
@@ -536,8 +658,9 @@ public class form extends javax.swing.JFrame {
                 int row = jtable.getSelectedRow();
                 String value = (jtable.getModel().getValueAt(row, 0).toString()); 
                 Database db = new Database();
-                double total_amount =  Double.parseDouble(quantityTxt.getText()) *  Double.parseDouble(unitTxt.getText());
-                int result = db.update_medicine(medicineTxt.getText(), companyTxt.getText(),packTxt.getText(),Double.parseDouble(quantityTxt.getText()),Double.parseDouble(unitTxt.getText()),total_amount,expTxt.getText(),value);
+                double total_amount = Double.parseDouble(quantity2Txt.getText()) * Double.parseDouble(unit2Txt.getText());
+                double roundOff = (double) Math.round(total_amount * 100) / 100;
+                int result = db.update_medicine(medicineTxt.getText(), companyTxt.getText(),packTxt.getText(),Double.parseDouble(defaultquantityTxt.getText()),Double.parseDouble(quantityTxt.getText()),Double.parseDouble(unitTxt.getText()),Double.parseDouble(quantity2Txt.getText()),Double.parseDouble(unit2Txt.getText()),roundOff,expTxt.getText(),value);
                 if(result>0)
                 {
                     DefaultTableModel model = (DefaultTableModel)jtable.getModel();
@@ -548,8 +671,11 @@ public class form extends javax.swing.JFrame {
                      medicineTxt.setText("");
                      companyTxt.setText("");
                      packTxt.setText("");
+                     defaultquantityTxt.setText("");
                      quantityTxt.setText("");
                      unitTxt.setText("");
+                     quantity2Txt.setText("");
+                     unit2Txt.setText("");
                      expTxt.setText("");
                  }
                 else
@@ -563,19 +689,25 @@ public class form extends javax.swing.JFrame {
             }
            
        }
+      
+       total_amount_func();
         
     }//GEN-LAST:event_btn2ActionPerformed
 
     private void jtableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jtableMouseClicked
+              
         int i = jtable.getSelectedRow();
         TableModel model = jtable.getModel();
         medicineTxt.setText(model.getValueAt(i, 1).toString());
          companyTxt.setText(model.getValueAt(i, 2).toString());
           packTxt.setText(model.getValueAt(i, 3).toString());
-          quantityTxt.setText(model.getValueAt(i, 4).toString());
-          unitTxt.setText(model.getValueAt(i, 5).toString());
-         expTxt.setText(model.getValueAt(i, 7).toString());
-  
+           defaultquantityTxt.setText(model.getValueAt(i, 4).toString());
+          quantityTxt.setText(model.getValueAt(i, 5).toString());
+          unitTxt.setText(model.getValueAt(i, 6).toString());
+          quantity2Txt.setText(model.getValueAt(i, 7).toString());
+          unit2Txt.setText(model.getValueAt(i, 8).toString());
+         expTxt.setText(model.getValueAt(i, 10).toString());       
+ 
     }//GEN-LAST:event_jtableMouseClicked
 
     private void btn3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn3ActionPerformed
@@ -610,7 +742,7 @@ public class form extends javax.swing.JFrame {
 //            }
 //         }
         
-                  if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && packTxt.getText().equals("") && quantityTxt.getText().equals("") && unitTxt.getText().equals("") && expTxt.getText().equals("")){
+                  if (medicineTxt.getText().equals("") && companyTxt.getText().equals("") && packTxt.getText().equals("") && defaultquantityTxt.getText().equals("") && quantityTxt.getText().equals("") && unitTxt.getText().equals("") && quantity2Txt.getText().equals("") && unit2Txt.getText().equals("") && expTxt.getText().equals("")){
            JOptionPane.showMessageDialog(this, "Please select data to delete!");
             }
                   
@@ -641,8 +773,12 @@ public class form extends javax.swing.JFrame {
                        medicineTxt.setText("");
                        companyTxt.setText("");
                        packTxt.setText("");
+                       defaultquantityTxt.setText("");
+                       defaultquantityTxt.setText("");
                        quantityTxt.setText("");
                        unitTxt.setText("");
+                       quantity2Txt.setText("");
+                       unit2Txt.setText("");
                        expTxt.setText("");
            } catch (SQLException ex) {
                JOptionPane.showMessageDialog(null, "Unable to delete");
@@ -650,21 +786,21 @@ public class form extends javax.swing.JFrame {
            
        }
         }
-    }
-        
-        
-        
-        
-        
-        
+    }       
+                  
+    total_amount_func();
+    
     }//GEN-LAST:event_btn3ActionPerformed
 
     private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
         medicineTxt.setText("");
         companyTxt.setText("");
           packTxt.setText("");
+          defaultquantityTxt.setText("");
         quantityTxt.setText("");
         unitTxt.setText("");
+        quantity2Txt.setText("");
+        unit2Txt.setText("");
         expTxt.setText("");
     }//GEN-LAST:event_btn4ActionPerformed
 
@@ -679,10 +815,6 @@ public class form extends javax.swing.JFrame {
     private void packTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_packTxtKeyTyped
         // TODO add your handling code here:
     }//GEN-LAST:event_packTxtKeyTyped
-
-    private void quantityTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantityTxtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_quantityTxtActionPerformed
 
     private void unitTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_unitTxtKeyTyped
       char c = evt.getKeyChar();
@@ -737,6 +869,100 @@ public class form extends javax.swing.JFrame {
        searchTxt.setForeground(new Color(0,0,0));
     }//GEN-LAST:event_searchTxtKeyTyped
 
+    private void quantity2TxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantity2TxtActionPerformed
+       
+    }//GEN-LAST:event_quantity2TxtActionPerformed
+
+    private void quantityTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantityTxtKeyTyped
+        char c = evt.getKeyChar();
+//        if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_ENTER || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD || c == KeyEvent.VK_MINUS || c == KeyEvent.VK_ADD)){
+//            evt.consume();
+//        }
+        if(Character.isAlphabetic(c)){
+             evt.consume();
+        }
+    }//GEN-LAST:event_quantityTxtKeyTyped
+
+    private void quantityTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantityTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_quantityTxtActionPerformed
+
+    private void unitTxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_unitTxtKeyReleased
+      double tablet_quantity = Double.parseDouble(unitTxt.getText())/ Double.parseDouble(defaultquantityTxt.getText());
+      unit2Txt.setText(String.valueOf(tablet_quantity));
+    }//GEN-LAST:event_unitTxtKeyReleased
+
+    private void quantityTxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantityTxtKeyReleased
+      double tablet_quantity = Double.parseDouble(quantityTxt.getText())* Double.parseDouble(defaultquantityTxt.getText());
+      double roundOff = (double) Math.round(tablet_quantity * 100) / 100;
+      quantity2Txt.setText(String.valueOf(roundOff));
+    }//GEN-LAST:event_quantityTxtKeyReleased
+
+    private void quantity2TxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantity2TxtKeyReleased
+       double leaflet_quantity =  Double.parseDouble(quantity2Txt.getText()) / Double.parseDouble(defaultquantityTxt.getText());
+       double roundOff = (double) Math.round(leaflet_quantity * 100) / 100;
+       quantityTxt.setText(String.valueOf((roundOff)));
+       
+       
+       
+    }//GEN-LAST:event_quantity2TxtKeyReleased
+
+    private void quantity2TxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantity2TxtKeyTyped
+        char c = evt.getKeyChar();
+//        quantity2Txt.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, KeyEvent.VK_SHIFT | KeyEvent.VK_CONTROL),"plus"); 
+//        if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD || c == KeyEvent.VK_MINUS || c == KeyEvent.VK_ENTER)){
+//            evt.consume();
+//        }
+        if(Character.isAlphabetic(c)){
+             evt.consume();
+        }
+    }//GEN-LAST:event_quantity2TxtKeyTyped
+
+    private void unit2TxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_unit2TxtKeyTyped
+         char c = evt.getKeyChar();
+        if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD)){
+            evt.consume();
+        }
+    }//GEN-LAST:event_unit2TxtKeyTyped
+
+    private void defaultquantityTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_defaultquantityTxtKeyTyped
+        char c = evt.getKeyChar();
+        if(!(Character.isDigit(c) || c==KeyEvent.VK_BACKSPACE || c == KeyEvent.VK_DELETE || c == KeyEvent.VK_PERIOD)){
+            evt.consume();
+        }
+    }//GEN-LAST:event_defaultquantityTxtKeyTyped
+
+    private void quantity2TxtKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantity2TxtKeyPressed
+       if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+           if(quantity2Txt.getText().contains("-")){
+              String[] splitValue = quantity2Txt.getText().split("-");
+               double result = Double.valueOf(splitValue[0]) - Double.valueOf(splitValue[1]);
+               quantity2Txt.setText(String.valueOf(result));
+           }
+            if(quantity2Txt.getText().contains("+")){
+              String[] splitValue = quantity2Txt.getText().split(String.valueOf("\\+"));
+               double result = Double.valueOf(splitValue[0]) + Double.valueOf(splitValue[1]);
+               quantity2Txt.setText(String.valueOf(result));
+            
+           }
+   }
+    }//GEN-LAST:event_quantity2TxtKeyPressed
+
+    private void quantityTxtKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_quantityTxtKeyPressed
+         if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+           if(quantityTxt.getText().contains("-")){
+              String[] splitValue = quantityTxt.getText().split("-");
+               double result = Double.valueOf(splitValue[0]) - Double.valueOf(splitValue[1]);
+               quantityTxt.setText(String.valueOf(result));
+           }
+            if(quantityTxt.getText().contains("+")){
+              String[] splitValue = quantityTxt.getText().split(String.valueOf("\\+"));
+               double result = Double.valueOf(splitValue[0]) + Double.valueOf(splitValue[1]);
+               quantityTxt.setText(String.valueOf(result));
+   }
+         }
+    }//GEN-LAST:event_quantityTxtKeyPressed
+
     
     
     
@@ -786,22 +1012,29 @@ public class form extends javax.swing.JFrame {
     private javax.swing.JButton btn3;
     private javax.swing.JButton btn4;
     private javax.swing.JTextField companyTxt;
+    private javax.swing.JTextField defaultquantityTxt;
     private javax.swing.JTextField expTxt;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jtable;
     private javax.swing.JTextField medicineTxt;
     private javax.swing.JTextField packTxt;
+    private javax.swing.JTextField quantity2Txt;
     private javax.swing.JTextField quantityTxt;
     private javax.swing.JTextField quantityTxt1;
     private javax.swing.JTextField searchTxt;
+    private javax.swing.JLabel totalAmountLabel;
+    private javax.swing.JTextField unit2Txt;
     private javax.swing.JTextField unitTxt;
     // End of variables declaration//GEN-END:variables
 
